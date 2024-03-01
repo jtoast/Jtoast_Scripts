@@ -1,6 +1,6 @@
 ﻿# Set your CrowdStrike API credentials
-$client_id = '539f878ec7374bf3b4d6fa54b95697a1'
-$client_secret = 'JPF7h2yWbvAtIl3U4Mn109VNmQ8zqwkrHK6E5gxX'
+$client_id = '3'
+$client_secret = '3'
 
 # Set your query filter
 $filter = 'hostname:*'
