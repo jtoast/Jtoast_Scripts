@@ -1,65 +1,107 @@
-﻿# Set your CrowdStrike API credentials
-$client_id = '3'
-$client_secret = '3'
+﻿
 
-# Set your query filter
-$filter = 'hostname:*'
+#This script when finished will export a list of active machines from both AD and the Crowdstrike console and then compare.
+#Written by Jim Roberts 03/04/2024
 
-# Set the CrowdStrike API endpoint
-$url = 'https://api.crowdstrike.com/devices/queries/devices-scroll/v1'
 
-# Set the CSV file name
-$csv_file = 'c:\temp\device_ids.csv'
+#Import powershell module so we don't have to deal with restAPI auth and formatting.
+Import-Module -Name PSFalcon
 
-# Authenticate with the CrowdStrike API to obtain an access token
-$auth_url = 'https://api.crowdstrike.com/oauth2/token'
-$auth_data = @{
-    'client_id' = $client_id
-    'client_secret' = $client_secret
-    'grant_type' = 'client_credentials'
+$outputPath = "C:\temp\Delta.csv"
+
+
+
+Function GetCSToken {
+    try {
+        Write-host "Attempting to acquire Falcon Token"
+        #Grab an authentication token. Will require you to paste in api client and secret until I add an auth method.
+        Request-FalconToken
+        if ((Test-FalconToken).Token -eq $true) { 
+            Write-host "Successfully retrieved Falcon Token"
+        }
+    }
+    catch {
+        Write-host $Error
+        Write-host "Failed to acquire Falcon Token. Exiting script"
+        Exit
+    }
 }
-$auth_response = Invoke-RestMethod -Uri $auth_url -Method Post -Body $auth_data
-$access_token = $auth_response.access_token
 
-# Set the query parameters
-$params = @{
-    'filter' = $filter
+Function RetrieveCSHosts {
+    try {
+        #Pull list of CrowdStrike hostnames
+        Write-host "Attempting to acquire hostnames from CrowdStrike Cloud. Grab some coffee, this part could take up to 3 minutes to complete."
+                $script:falconHostList = Get-Falconhost -Detailed | select-object hostname 
+        Write-host "Successfully retrieved host info from the Crowdstike Cloud"
+            }
+
+    catch {
+        Write-host $Error
+        Write-host "Failed to acquire Falcon hosts info. Exiting script"
+       
+    }
 }
 
-# Initialize list to hold hostnames
-$hostnames = New-Object System.Collections.Generic.List[System.String]
+Function RetrieveADHosts {
+    try {
+        #pull list of AD Hostnames
+        
+        Write-Host "Attempting to retrieve hostnames from AD"
+        
+        $script:adHostList = Get-ADComputer -filter "Enabled -eq 'true'" | Select-Object Name 
+        
+        Write-host "Succesfully retrieved AD host info"
+        
+    }
+    catch {
+        Write-host $Error
+        Write-host "Failed to acquire Active host from Active Directory. Exiting script"
+    }
+}
 
-# Set the cursor to $null for the initial request
-$cursor = $null
 
-# Make requests until all hosts are fetched
-do {
-    # Set the cursor in the request params
-    if ($cursor) {
-        $params['cursor'] = $cursor
+Function CompareResults {
+    try {
+        
+        # Compare the contents of the comparison CSV file against the master CSV file based on a specific property
+        Write-Host "Beginning Crowdstrike/AD comparison."
+        $Script:uniqueRows = Compare-Object -ReferenceObject $adHostList -DifferenceObject $falconHostList -Property 'ColumnA' -PassThru | Where-Object { $_.SideIndicator -eq '<=' } 
+        Write-Host "Crowdstrike AD Comparison complete. Beginning export"
+        
     }
 
-    # Make the request to the CrowdStrike API
-    $response = Invoke-RestMethod -Uri $url -Method Get -Headers @{
-        'Authorization' = "Bearer $access_token"
+    catch {
+        Write-host $Error
+        Write-host "An issue occured when attempting to compare data source. exiting script "
     }
+    
+}
 
-    # Extract the hosts from the response
-    $hosts = $response.resources
 
-    # Add hostnames to the list
-    foreach ($h in $hosts) {
-        $hostnames.Add($h)
-    }
+############################Do Stuff###############################
+GetCSToken
 
-    # Update the cursor for the next request
-    $cursor = $response.meta.pagination.next
-} while ($response.meta.pagination.next)
+RetrieveCSHosts
 
-# Export hostnames to CSV file
-if ($hostnames.Count -gt 0) {
-    $hostnames > $csv_file
-    Write-Host "Exported hosts to $csv_file"
-} else {
-    Write-Host "No hostnames found or retrieved. Export to CSV aborted."
+
+RetrieveADHosts
+
+
+CompareResults
+
+#export Results
+Try {
+    # Export the unique rows to a new CSV file
+    Write-Host "Exporting results to CSV"
+    $uniqueRows | Export-Csv -Path $outputPath -NoTypeInformation
+    Write-host "Hostnames in AD but not in CS have been exorted to $outputPath."
+    Write-Host  "Exiting Script"
+}
+
+
+Catch {
+    Write-Host $Error
+    Write-host "Export to CSV failed."
+    Write-host "Exiting Script."
+    exit
 }
