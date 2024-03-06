@@ -7,7 +7,7 @@
 #Import powershell module so we don't have to deal with restAPI auth and formatting.
 Import-Module -Name PSFalcon
 
-$outputPath = "C:\temp\Delta.csv"
+$outputPath = "C:\temp\Delta_$((Get-Date).ToString('MMddyyyy_hh:mm:ss')).csv"
 
 
 
