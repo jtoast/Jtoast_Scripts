@@ -1,5 +1,5 @@
 ﻿#This script when finished will export a list of active machines from both AD and the Crowdstrike console and then compare.
-#Written by Jim Roberts 03/04/2024
+#Written by Jim Roberts 03/04/2024.
 
 
 #Import powershell module so we don't have to deal with restAPI auth and formatting.
