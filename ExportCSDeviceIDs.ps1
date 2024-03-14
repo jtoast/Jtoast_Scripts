@@ -1,5 +1,5 @@
 ﻿#This script when finished will export a list of active machines from both AD and the Crowdstrike console and then compare.
-#Written by Jim Roberts 03/04/2024.
+#Written by Jim Roberts 03/04/2024
 
 
 #Import powershell module so we don't have to deal with restAPI auth and formatting.
@@ -73,4 +73,33 @@ Function CompareResults {
         Write-host "An issue occured when attempting to compare data source. exiting script "
     }
     
+}
+
+
+############################Do Stuff###############################
+GetCSToken
+
+RetrieveCSHosts
+
+
+RetrieveADHosts
+
+
+CompareResults
+
+#export Results
+Try {
+    # Export the unique rows to a new CSV file
+    Write-Host "Exporting results to CSV"
+    $uniqueRows | Export-Csv -Path $outputPath -NoTypeInformation
+    Write-host "Hostnames in AD but not in CS have been exorted to $outputPath."
+    Write-Host  "Exiting Script"
+}
+
+
+Catch {
+    Write-Host $Error
+    Write-host "Export to CSV failed."
+    Write-host "Exiting Script."
+    exit
 }
