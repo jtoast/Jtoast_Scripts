@@ -87,6 +87,7 @@ Function CompareResults {
 
         $Script:uniqueRows = Compare-Object -ReferenceObject $adHostList -DifferenceObject $falconHostList -Property 'ColumnA' -PassThru | Where-Object { $_.SideIndicator -eq '<=' } 
         Write-Host "Crowdstrike AD Comparison complete. Beginning export"
+        WriteLog "Crowdstrike AD Comparison complete. Beginning export"
         
     }
 
