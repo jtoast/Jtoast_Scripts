@@ -1,4 +1,4 @@
-﻿#This script when finished will export a list of active machines from both AD and the Crowdstrike console and then compare.
+﻿#This script when finished will export a list of active machines from both AD and the Crowdstrike console, compare the two, and export a list of machines in AD that are not in the CS console..
 #Written by Jim Roberts 03/04/2024
 
 
