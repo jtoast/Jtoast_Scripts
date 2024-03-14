@@ -74,32 +74,3 @@ Function CompareResults {
     }
     
 }
-
-
-############################Do Stuff###############################
-GetCSToken
-
-RetrieveCSHosts
-
-
-RetrieveADHosts
-
-
-CompareResults
-
-#export Results
-Try {
-    # Export the unique rows to a new CSV file
-    Write-Host "Exporting results to CSV"
-    $uniqueRows | Export-Csv -Path $outputPath -NoTypeInformation
-    Write-host "Hostnames in AD but not in CS have been exorted to $outputPath."
-    Write-Host  "Exiting Script"
-}
-
-
-Catch {
-    Write-Host $Error
-    Write-host "Export to CSV failed."
-    Write-host "Exiting Script."
-    exit
-}
