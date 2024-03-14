@@ -129,8 +129,8 @@ Try {
     Write-Host "Exporting results to CSV"
     WriteLog Write-Host "Exporting results to CSV"
     $uniqueRows | Export-Csv -Path $outputPath -NoTypeInformation
-    Write-host "Hostnames in AD but not in CS have been exorted to $outputPath."
-    WriteLog "Hostnames in AD but not in CS have been exorted to $outputPath."
+    Write-host "Hostnames in AD but not in CS have been exported to $outputPath."
+    WriteLog "Hostnames in AD but not in CS have been exported to $outputPath."
     Write-Host  "Exiting Script"
     WriteLog "Exiting Script"
     Exit
