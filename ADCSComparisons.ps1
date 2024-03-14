@@ -2,13 +2,23 @@
 #Written by Jim Roberts 03/04/2024.
 
 #Start by setting up some logging.
-$Logfile = "C:\Temp\ADCSCompare_$((Get-Date).ToString("MMddyy HHmmss"))_.log"
-function WriteLog {
+ # Check if the directory C:\Temp exists, if not, create it
+ $TempDirectory = "C:\Temp"
+ if (-not (Test-Path -Path $TempDirectory -PathType Container)) {
+     New-Item -Path $TempDirectory -ItemType Directory
+ }
+ $Logpath= $TempDirectory
+ $LogName = "ADCSCompare_$((Get-Date).ToString("MMddyy HHmmss"))_.log"
+ $Logfile = Join-Path $Logpath $LogName
+
+ function WriteLog {
     Param ([string]$LogString)
+    
     $TimeLog = (Get-Date).toString("yyyy/MM/dd HH:mm:ss")
     $LogMessage = "$TimeLog $LogString"
     Add-Content $LogFile -Value $LogMessage
 }
+Writelog "Starting Script"
 
 #Import powershell module so we don't have to deal with restAPI auth and formatting.
 Import-Module -Name PSFalcon
