@@ -105,10 +105,14 @@ Function CompareResults {
 Function ExportResults{
 # Export Results
 Try {
-    # Export the unique rows to a new CSV file
-    Write-Host "Exporting results to CSV"
-    WriteLog "Exporting results to CSV"
-    $uniqueRows | Export-Csv -Path $outputPath -NoTypeInformation
+    # Create the column heading line
+    $columnHeading = "Hostname"
+    
+    # Export the column heading line followed by the unique rows to a new text file
+    Write-Host "Exporting results to text file"
+    WriteLog "Exporting results to text file"
+    $columnHeading | Out-File -FilePath $outputPath -Encoding utf8
+    $uniqueRows | Out-File -FilePath $outputPath -Append -Encoding utf8
     Write-Host "Hostnames in AD but not in CS have been exported to $outputPath."
     WriteLog "Hostnames in AD but not in CS have been exported to $outputPath."
     Write-Host "Exiting Script"
@@ -118,9 +122,9 @@ Try {
 Catch {
     Write-Host $Error
     WriteLog $Error
-    Write-Host "Export to CSV failed."
+    Write-Host "Export to text file failed."
     Write-Host "Exiting Script."
-    WriteLog "Export to CSV failed."
+    WriteLog "Export to text file failed."
     WriteLog "Exiting Script."
     Exit
 }
