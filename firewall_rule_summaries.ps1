@@ -1,6 +1,6 @@
 #Original script retrieved from https://github.com/CrowdStrike/psfalcon/blob/master/samples/firewall_management/firewall_rule_summaries.ps1
 #Requires -Version 5.1
-#Modified 03/15/2024 to so taht exported file names and fields reflect common name not CS id's for easier readabillity.
+#Modified 03/15/2024 to so that exported file names and fields reflect common name not CS id's for easier readabillity.
 using module @{ModuleName='PSFalcon';ModuleVersion='2.2'}
 <#
 .SYNOPSIS
