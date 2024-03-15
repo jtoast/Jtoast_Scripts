@@ -1,48 +1,45 @@
-#This script when finished will export a list of active machines from both AD and the Crowdstrike console and then compare.
-#Written by Jim Roberts 03/04/2024.
+# Set the error action preference to stop on error
+$ErrorActionPreference = "Stop"
 
-#Start by setting up some logging.
-#Import powershell module so we don't have to deal with restAPI auth and formatting.
+# Import the PSFalcon module
 Import-Module -Name PSFalcon
- # Check if the directory C:\Temp exists and set a few variables.
 
- $Logpath = "C:\Temp"
- if (!(Test-Path -Path $Logpath -PathType Container)) {
-     New-Item -Path $Logpath -ItemType Directory
- }
+# Check if the directory C:\Temp exists and set a few variables
+$Logpath = "C:\Temp"
+if (!(Test-Path -Path $Logpath -PathType Container)) {
+    New-Item -Path $Logpath -ItemType Directory
+}
 
- $LogName = "ADCSCompare_$((Get-Date).ToString("MMddyy HHmmss"))_.log"
- $Logfile = Join-Path $Logpath $LogName
+$LogName = "ADCSCompare_$((Get-Date).ToString("MMddyy HHmmss"))_.log"
+$LogFile = Join-Path $Logpath $LogName
 
- function WriteLog {
+function WriteLog {
     Param ([string]$LogString)
     
-    $TimeLog = (Get-Date).toString("yyyy/MM/dd HH:mm:ss")
+    $TimeLog = (Get-Date).ToString("yyyy/MM/dd HH:mm:ss")
     $LogMessage = "$TimeLog $LogString"
     Add-Content $LogFile -Value $LogMessage
 }
-Writelog "Starting Script"
 
-
+WriteLog "Starting Script"
 
 $outputPath = "C:\temp\Delta_$((Get-Date).ToString("MMddyy HHmm"))_.csv"
 
-
-
 Function GetCSToken {
     try {
-        Write-host "Attempting to acquire Falcon Token"
+        Write-Host "Attempting to acquire Falcon Token"
         WriteLog  "Attempting to acquire Falcon Token"
-        #Grab an authentication token. Will require you to paste in api client and secret until I add an auth method.
+        # Grab an authentication token. Will require you to paste in api client and secret until I add an auth method.
         Request-FalconToken
         if ((Test-FalconToken).Token -eq $true) { 
-            Write-host "Successfully retrieved Falcon Token"
+            Write-Host "Successfully retrieved Falcon Token"
             WriteLog "Successfully retrieved Falcon Token"
         }
     }
     catch {
-        Write-host $Error
-        Write-host "Failed to acquire Falcon Token. Exiting script"
+        Write-Host $Error
+        WriteLog $Error
+        Write-Host "Failed to acquire Falcon Token. Exiting script"
         WriteLog "Failed to acquire Falcon Token. Exiting script"
         Exit
     }
@@ -50,49 +47,45 @@ Function GetCSToken {
 
 Function RetrieveCSHosts {
     try {
-        #Pull list of CrowdStrike hostnames
-        Write-host "Attempting to acquire hostnames from CrowdStrike Cloud. Grab some coffee, this part could take up to 3 minutes to complete."
+        # Pull list of CrowdStrike hostnames
+        Write-Host "Attempting to acquire hostnames from CrowdStrike Cloud. Grab some coffee, this part could take up to 3 minutes to complete."
         WriteLog "Attempting to acquire hostnames from CrowdStrike Cloud. Grab some coffee, this part could take up to 3 minutes to complete."
 
-                $script:falconHostList = Get-Falconhost -Detailed | select-object hostname 
-        Write-host "Successfully retrieved host info from the Crowdstike Cloud"
+        $script:falconHostList = Get-Falconhost -Detailed | select-object hostname 
+        Write-Host "Successfully retrieved host info from the Crowdstrike Cloud"
         WriteLog "Successfully retrieved host info from the Crowdstike Cloud"
-            }
-
+    }
     catch {
-        Write-host $Error
-        Write-host "Failed to acquire Falcon hosts info. Exiting script"
+        Write-Host $Error
         WriteLog $Error
+        Write-Host "Failed to acquire Falcon hosts info. Exiting script"
         WriteLog "Failed to acquire Falcon hosts info. Exiting script"
-       
+        Exit
     }
 }
 
 Function RetrieveADHosts {
     try {
-        #pull list of AD Hostnames
-        
+        # Pull list of AD Hostnames
         Write-Host "Attempting to retrieve hostnames from AD"
         WriteLog "Attempting to retrieve hostnames from AD"
         
-        $script:adHostList = Get-ADComputer -filter "Enabled -eq 'true'" | Select-Object Name 
+        $script:adHostList = Get-ADComputer -Filter "Enabled -eq 'true'" | Select-Object -ExpandProperty Name 
         
-        Write-host "Succesfully retrieved AD host info"
-        WriteLog "Succesfully retrieved AD host info"
-        
+        Write-Host "Successfully retrieved AD host info"
+        WriteLog "Successfully retrieved AD host info"
     }
     catch {
-        Write-host $Error
-        Write-host "Failed to acquire Active host from Active Directory. Exiting script"
+        Write-Host $Error
         WriteLog $Error
+        Write-Host "Failed to acquire Active host from Active Directory. Exiting script"
         WriteLog "Failed to acquire Active host from Active Directory. Exiting script"
+        Exit
     }
 }
 
-
 Function CompareResults {
     try {
-        
         # Compare the contents of the comparison CSV file against the master CSV file based on a specific property
         Write-Host "Beginning Crowdstrike/AD comparison."
         WriteLog "Beginning Crowdstrike/AD comparison."
@@ -100,51 +93,41 @@ Function CompareResults {
         $Script:uniqueRows = Compare-Object -ReferenceObject $adHostList -DifferenceObject $falconHostList -Property 'ColumnA' -PassThru | Where-Object { $_.SideIndicator -eq '<=' } 
         Write-Host "Crowdstrike AD Comparison complete. Beginning export"
         WriteLog "Crowdstrike AD Comparison complete. Beginning export"
-        
     }
-
     catch {
-        Write-host $Error
-        Write-host "An issue occured when attempting to compare data source. exiting script"
+        Write-Host $Error
         WriteLog $Error
-        WriteLog "An issue occured when attempting to compare data source. exiting script"
+        Write-Host "An issue occurred when attempting to compare data sources. Exiting script"
+        WriteLog "An issue occurred when attempting to compare data sources. Exiting script"
         Exit
     }
-    
 }
 
-
 ############################Do Stuff###############################
+
 GetCSToken
-
 RetrieveCSHosts
-
-
 RetrieveADHosts
-
-
 CompareResults
 
-#export Results
+# Export Results
 Try {
     # Export the unique rows to a new CSV file
     Write-Host "Exporting results to CSV"
-    WriteLog Write-Host "Exporting results to CSV"
+    WriteLog "Exporting results to CSV"
     $uniqueRows | Export-Csv -Path $outputPath -NoTypeInformation
-    Write-host "Hostnames in AD but not in CS have been exported to $outputPath."
+    Write-Host "Hostnames in AD but not in CS have been exported to $outputPath."
     WriteLog "Hostnames in AD but not in CS have been exported to $outputPath."
-    Write-Host  "Exiting Script"
+    Write-Host "Exiting Script"
     WriteLog "Exiting Script"
     Exit
 }
-
-
 Catch {
     Write-Host $Error
-    Write-host "Export to CSV failed."
-    Write-host "Exiting Script."
     WriteLog $Error
-    WriteLog "Export to CSV failed.
-    WriteLog Exiting Script"
-    exit
+    Write-Host "Export to CSV failed."
+    Write-Host "Exiting Script."
+    WriteLog "Export to CSV failed."
+    WriteLog "Exiting Script."
+    Exit
 }
