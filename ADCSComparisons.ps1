@@ -1,4 +1,7 @@
-﻿# Set the error action preference to stop on error
+﻿#This script gathers list of active machines from both AD and the Crowdstrike console, compares the two, and exports a list of machines in AD that are not in the CS console..
+#Written by Jim Roberts 03/04/2024
+
+# Set the error action preference to stop on error
 $ErrorActionPreference = "Stop"
 
 # Import the PSFalcon module
