@@ -1,4 +1,4 @@
-# Set the error action preference to stop on error
+﻿# Set the error action preference to stop on error
 $ErrorActionPreference = "Stop"
 
 # Import the PSFalcon module
@@ -102,14 +102,7 @@ Function CompareResults {
         Exit
     }
 }
-
-############################Do Stuff###############################
-
-GetCSToken
-RetrieveCSHosts
-RetrieveADHosts
-CompareResults
-
+Function ExportResults{
 # Export Results
 Try {
     # Export the unique rows to a new CSV file
@@ -131,3 +124,11 @@ Catch {
     WriteLog "Exiting Script."
     Exit
 }
+}
+############################Do Stuff###############################
+
+GetCSToken
+RetrieveCSHosts
+RetrieveADHosts
+CompareResults
+ExportResults
