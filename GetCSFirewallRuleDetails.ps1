@@ -1,5 +1,5 @@
 ﻿#This script retrieves firewall rule details from the CrowdStrike cloud.
-#Written by Jim Roberts 03/15/2024
+
 
 # Set the error action preference to stop on error
 $ErrorActionPreference = "Stop"
