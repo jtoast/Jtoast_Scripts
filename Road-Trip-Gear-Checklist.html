@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>30-Day Road Trip Gear Checklist</title>
+<style>
+  :root {
+    --bg: #f7f5f1;
+    --card: #ffffff;
+    --ink: #2b2b2b;
+    --muted: #6b6b6b;
+    --accent: #2f6f4f;
+    --accent-light: #e6f2ea;
+    --border: #e2ddd3;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 24px 16px 80px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 {
+    font-size: 1.6em;
+    margin-bottom: 2px;
+  }
+  .subtitle {
+    color: var(--muted);
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 0.95em;
+  }
+  .progress-bar-outer {
+    background: var(--border);
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .progress-bar-inner {
+    background: var(--accent);
+    height: 100%;
+    width: 0%;
+    transition: width 0.25s ease;
+  }
+  .progress-label {
+    font-size: 0.85em;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .category {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .category-header {
+    padding: 14px 16px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .category-count {
+    font-weight: 400;
+    color: var(--muted);
+    font-size: 0.85em;
+  }
+  .items { padding: 0 16px 12px; }
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 7px 0;
+    border-top: 1px solid #f0ede7;
+  }
+  .item:first-child { border-top: none; }
+  .item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .item label {
+    cursor: pointer;
+    line-height: 1.4;
+  }
+  .item.checked label {
+    color: var(--muted);
+    text-decoration: line-through;
+  }
+  .notes {
+    background: var(--accent-light);
+    border: 1px solid #cfe4d7;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 20px;
+    font-size: 0.92em;
+  }
+  .notes h2 { margin-top: 0; font-size: 1.05em; }
+  .reset-btn {
+    display: block;
+    margin: 28px auto 0;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.85em;
+    cursor: pointer;
+  }
+  .reset-btn:hover { background: #f0ede7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>30-Day Road Trip Gear Checklist</h1>
+  <p class="subtitle">Solo &middot; Sleeping in vehicle 2-3 nights/week &middot; September departure &middot; All 48 continental states</p>
+
+  <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar"></div></div>
+  <p class="progress-label" id="progressLabel">0 of 0 packed</p>
+
+  <div id="checklist"></div>
+
+  <div class="notes">
+    <h2>A Few Notes</h2>
+    <p><strong>Pack loose, not tight.</strong> Leave breathing room in bins for groceries picked up along the way &mdash; overpacking the car makes nightly sleep setup a chore.</p>
+    <p><strong>Do a one-night practice run</strong> near home before the trip starts. Sleep in the car in your driveway or a nearby spot for a night &mdash; you'll immediately find what's missing or awkwardly placed before you're 800 miles from home.</p>
+    <p><strong>Keep a "daily use" zone separate from "deep storage."</strong> Things you touch every day (food bins, sleep gear, toiletries) should be reachable without moving everything else.</p>
+  </div>
+
+  <button class="reset-btn" onclick="resetAll()">Reset all checkboxes</button>
+</div>
+
+<script>
+const data = [
+  { category: "Sleeping Setup", items: [
+    "Memory foam mattress topper or dedicated sleep pad, cut to fit cargo area",
+    "Sleeping bag rated to ~20-30°F (Rockies and northern states will get cold at night, even in September)",
+    "Backup fleece blanket or liner for extra warmth",
+    "Camp pillow (or a stuff sack you fill with clothes)",
+    "Window coverings (Reflectix cut to size, or magnetic sunshades) for all windows — privacy + temperature control",
+    "Small 12V fan for airflow on warm nights",
+    "Earplugs and a sleep mask (truck stops and rest areas are noisy/bright)",
+    "Battery-powered lantern or headlamp for reading/setup after dark",
+    "Door/window screens or bug netting if you'll crack windows overnight"
+  ]},
+  { category: "Food & Cooking", items: [
+    "12V cooler (plugs into car outlet)",
+    "2-3 stackable storage bins (pantry, cook gear, dishes)",
+    "Collapsible trash bin with lid",
+    "Single-burner propane camp stove + 2-3 canisters",
+    "Small pot, small nonstick pan",
+    "Reusable utensils, small cutting board, paring knife + sheath",
+    "Can opener, lighter/waterproof matches",
+    "1-2 plates, 1 bowl, 1 mug",
+    "Dish soap, sponge, collapsible wash basin, microfiber towel",
+    "Paper towels, hand sanitizer",
+    "Gallon water jug + refillable bottle",
+    "Pantry staples: coffee, oatmeal, PB&J, bread/tortillas, canned soup/beans/tuna, pasta + sauce, instant rice, salt/pepper/seasoning, oil, snacks",
+    "Small fire extinguisher (keep near cook setup)",
+    "Ziploc bags, extra trash bags, cooler thermometer"
+  ]},
+  { category: "Vehicle & Roadside Safety", items: [
+    "Portable jump starter/battery pack",
+    "Tire inflator (12V) and tire pressure gauge",
+    "Tire repair kit or plug kit",
+    "Spare tire check (confirm condition before departure) or inflator kit if no spare",
+    "Basic tool kit (screwdrivers, pliers, adjustable wrench, duct tape, zip ties)",
+    "Jumper cables (backup to jump starter)",
+    "Reflective triangles or road flares",
+    "Extra windshield washer fluid",
+    "Quart of engine oil (turbo engines can burn a bit between changes)",
+    "Paper copy of insurance card, registration, roadside assistance number",
+    "Roadside assistance membership confirmed active (AAA or similar) — especially valuable in remote Rocky Mountain stretches",
+    "Small fire extinguisher for the vehicle itself (separate from cooking one, or one dual-purpose unit within reach of the driver's seat)",
+    "Ice scraper (mountain passes, early morning in northern states)"
+  ]},
+  { category: "Clothing (30 days, laundry every 5-7 days)", items: [
+    "6-7 days of base layers (shirts, underwear, socks)",
+    "2-3 pairs of pants/hiking pants",
+    "Warm layers: fleece or midweight jacket, insulated jacket for higher elevations",
+    "Rain shell (packable)",
+    "Hat (sun) + beanie (cold mornings)",
+    "Gloves (lightweight, for cold mountain mornings)",
+    "Comfortable walking/hiking shoes",
+    "Sandals or camp shoes (easy on/off, good for gas station stops)",
+    "Swimsuit (Gulf Coast/beach stops)",
+    "One \"presentable\" outfit for a nicer dinner out",
+    "Laundry bag (separate dirty from clean) + a few laundromat quarters or a portable detergent sheet stash"
+  ]},
+  { category: "Hygiene & Personal Care", items: [
+    "Toiletry bag: toothbrush, toothpaste, deodorant, razor, etc.",
+    "Biodegradable wet wipes (for days without shower access)",
+    "Travel towel (quick-dry, packable)",
+    "Small first aid kit (bandages, antiseptic, pain reliever, blister care, any prescriptions)",
+    "Sunscreen and lip balm with SPF",
+    "Hand sanitizer (bulk, separate from the food-prep one)",
+    "Portable camp shower or solar shower bag (optional, useful for stretches without gym/truck stop access)",
+    "Gym membership with multi-state locations (Planet Fitness, etc.) for showers"
+  ]},
+  { category: "Electronics & Documentation", items: [
+    "MacBook Air + charger",
+    "Phone + charger, car mount for navigation",
+    "Portable power bank (backup for phone/devices)",
+    "12V car charger/inverter with multiple USB ports",
+    "External SSD for footage backup",
+    "Action camera or dedicated camera, if using one beyond phone footage",
+    "Extra memory cards",
+    "Offline maps downloaded (Google Maps offline areas, or a dedicated app) — cell coverage will drop in the Rockies and other remote stretches",
+    "Printed paper map as backup",
+    "Headphones/earbuds"
+  ]},
+  { category: "Organization & Comfort", items: [
+    "Packing cubes or bags to keep clothing sorted and off the sleeping area",
+    "Small daypack for day hikes/excursions away from the car",
+    "Reusable water bottles (2, so one can always be filling/cold)",
+    "Folding camp chair (nice to have a seat outside the car at stops)",
+    "Notebook/journal if you want a non-digital trip log",
+    "Cash reserve (small bills) for tolls, parking, or cash-only spots",
+    "Physical copy of your itinerary/key reservations, in case phone dies"
+  ]},
+  { category: "Health & Misc", items: [
+    "Any prescription medications (enough for 30+ days, plus a few extra in case of delays)",
+    "Copy of VA benefits/ID information, just in case care is needed while traveling",
+    "Basic OTC meds: pain reliever, antacid, allergy medication, motion sickness if needed",
+    "Multivitamin (easy to eat less well on the road)",
+    "Bug spray"
+  ]}
+];
+
+const STORAGE_KEY = "roadTripChecklistState";
+
+function loadState() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveState(state) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.warn("Could not save checklist state:", e);
+  }
+}
+
+function render() {
+  const state = loadState();
+  const container = document.getElementById("checklist");
+  container.innerHTML = "";
+  let total = 0, checkedCount = 0;
+
+  data.forEach((cat, ci) => {
+    const catDiv = document.createElement("div");
+    catDiv.className = "category";
+
+    const header = document.createElement("div");
+    header.className = "category-header";
+    const catChecked = cat.items.filter((_, ii) => state[`${ci}-${ii}`]).length;
+    header.innerHTML = `<span>${cat.category}</span><span class="category-count">${catChecked}/${cat.items.length}</span>`;
+    catDiv.appendChild(header);
+
+    const itemsDiv = document.createElement("div");
+    itemsDiv.className = "items";
+
+    cat.items.forEach((item, ii) => {
+      total++;
+      const key = `${ci}-${ii}`;
+      const isChecked = !!state[key];
+      if (isChecked) checkedCount++;
+
+      const itemDiv = document.createElement("div");
+      itemDiv.className = "item" + (isChecked ? " checked" : "");
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = key;
+      checkbox.checked = isChecked;
+      checkbox.addEventListener("change", () => {
+        const s = loadState();
+        s[key] = checkbox.checked;
+        saveState(s);
+        render();
+      });
+
+      const label = document.createElement("label");
+      label.setAttribute("for", key);
+      label.textContent = item;
+
+      itemDiv.appendChild(checkbox);
+      itemDiv.appendChild(label);
+      itemsDiv.appendChild(itemDiv);
+    });
+
+    catDiv.appendChild(itemsDiv);
+    container.appendChild(catDiv);
+  });
+
+  document.getElementById("progressLabel").textContent = `${checkedCount} of ${total} packed`;
+  document.getElementById("progressBar").style.width = total ? `${(checkedCount / total) * 100}%` : "0%";
+}
+
+function resetAll() {
+  if (confirm("Reset all checkboxes?")) {
+    saveState({});
+    render();
+  }
+}
+
+render();
+</script>
+</body>
+</html>
