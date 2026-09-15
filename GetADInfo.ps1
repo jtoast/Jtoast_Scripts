@@ -1,5 +1,5 @@
 # This script will pull active machines from the AD console and the Crowdstrike console. it will eventually compare them unless I run out of time.
-#Written by Jim Roberts
+
 #02/28/2024
 
 
